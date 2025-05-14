@@ -121,7 +121,8 @@ const MapComponent: React.FC<MapComponentProps> = ({ selectedOrder, mapboxToken 
       // Fit bounds to the route - now we know for sure we're working with LineString coordinates
       const bounds = new mapboxgl.LngLatBounds();
       route.geometry.coordinates.forEach((coord) => {
-        bounds.extend(coord);
+        // Fix: Use LngLat.convert to properly convert the coordinates to LngLatLike
+        bounds.extend(new mapboxgl.LngLat(coord[0], coord[1]));
       });
       
       map.current.fitBounds(bounds, {
