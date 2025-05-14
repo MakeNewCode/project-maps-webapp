@@ -56,21 +56,21 @@ const MapComponent: React.FC<MapComponentProps> = ({ selectedOrder, mapboxToken 
     }
 
     if (selectedOrder.status === 'In Transit') {
-      // Mock data for Argentina
-      const startPoint = [-58.3816, -34.6037]; // Buenos Aires
-      const endPoint = [-57.5426, -38.0174]; // Mar del Plata
+      // Mock data for Argentina - explicitly typed as [number, number] tuples
+      const startPoint: [number, number] = [-58.3816, -34.6037]; // Buenos Aires
+      const endPoint: [number, number] = [-57.5426, -38.0174]; // Mar del Plata
       
-      // Create a mock route
-      const route = {
+      // Create a mock route with proper GeoJSON format
+      const route: GeoJSON.Feature = {
         'type': 'Feature',
         'properties': {},
         'geometry': {
           'type': 'LineString',
           'coordinates': [
             startPoint,
-            [-58.2, -35.0],
-            [-57.8, -36.5],
-            [-57.9, -37.5],
+            [-58.2, -35.0] as [number, number],
+            [-57.8, -36.5] as [number, number],
+            [-57.9, -37.5] as [number, number],
             endPoint
           ]
         }
@@ -87,7 +87,7 @@ const MapComponent: React.FC<MapComponentProps> = ({ selectedOrder, mapboxToken 
         .addTo(map.current);
         
       // Current location marker (somewhere along the route)
-      const currentPoint = [-57.9, -37.5];
+      const currentPoint: [number, number] = [-57.9, -37.5];
       new mapboxgl.Marker({ color: '#10b981' })
         .setLngLat(currentPoint)
         .addTo(map.current);
@@ -96,7 +96,7 @@ const MapComponent: React.FC<MapComponentProps> = ({ selectedOrder, mapboxToken 
       if (!map.current.getSource('route')) {
         map.current.addSource('route', {
           'type': 'geojson',
-          'data': route
+          'data': route as GeoJSON.Feature
         });
         
         map.current.addLayer({
@@ -115,13 +115,13 @@ const MapComponent: React.FC<MapComponentProps> = ({ selectedOrder, mapboxToken 
         });
       } else {
         // Update the route
-        (map.current.getSource('route') as mapboxgl.GeoJSONSource).setData(route);
+        (map.current.getSource('route') as mapboxgl.GeoJSONSource).setData(route as GeoJSON.Feature<GeoJSON.Geometry>);
       }
       
       // Fit bounds to the route
       const bounds = new mapboxgl.LngLatBounds();
-      route.geometry.coordinates.forEach((coord) => {
-        bounds.extend(coord as mapboxgl.LngLatLike);
+      (route.geometry.coordinates as [number, number][]).forEach((coord) => {
+        bounds.extend(coord);
       });
       
       map.current.fitBounds(bounds, {
