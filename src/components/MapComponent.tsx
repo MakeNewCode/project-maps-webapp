@@ -60,8 +60,8 @@ const MapComponent: React.FC<MapComponentProps> = ({ selectedOrder, mapboxToken 
       const startPoint: [number, number] = [-58.3816, -34.6037]; // Buenos Aires
       const endPoint: [number, number] = [-57.5426, -38.0174]; // Mar del Plata
       
-      // Create a mock route with proper GeoJSON format
-      const route: GeoJSON.Feature = {
+      // Create a mock route with proper GeoJSON format and explicit LineString type
+      const route: GeoJSON.Feature<GeoJSON.LineString> = {
         'type': 'Feature',
         'properties': {},
         'geometry': {
@@ -96,7 +96,7 @@ const MapComponent: React.FC<MapComponentProps> = ({ selectedOrder, mapboxToken 
       if (!map.current.getSource('route')) {
         map.current.addSource('route', {
           'type': 'geojson',
-          'data': route as GeoJSON.Feature
+          'data': route
         });
         
         map.current.addLayer({
@@ -115,12 +115,12 @@ const MapComponent: React.FC<MapComponentProps> = ({ selectedOrder, mapboxToken 
         });
       } else {
         // Update the route
-        (map.current.getSource('route') as mapboxgl.GeoJSONSource).setData(route as GeoJSON.Feature<GeoJSON.Geometry>);
+        (map.current.getSource('route') as mapboxgl.GeoJSONSource).setData(route);
       }
       
-      // Fit bounds to the route
+      // Fit bounds to the route - now we know for sure we're working with LineString coordinates
       const bounds = new mapboxgl.LngLatBounds();
-      (route.geometry.coordinates as [number, number][]).forEach((coord) => {
+      route.geometry.coordinates.forEach((coord) => {
         bounds.extend(coord);
       });
       
