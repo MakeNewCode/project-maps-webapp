@@ -3,7 +3,6 @@ import AppSidebar from '@/components/AppSidebar';
 import OrderCard, { Order } from '@/components/OrderCard';
 import OrderFilters, { FilterType } from '@/components/OrderFilters';
 import MapComponent from '@/components/MapComponent';
-import OrderDetails from '@/components/OrderDetails';
 import MapboxTokenInput from '@/components/MapboxTokenInput';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { 
@@ -17,45 +16,49 @@ import {
 
 const MOCK_ORDERS: Order[] = [
   {
-    id: '#AD345Jk758',
-    status: 'In Transit',
-    progress: 60,
-    steps: [
-      { date: '21 Jan', status: 'Checking', time: '10:23 AM' },
-      { date: '25 Jan', status: 'In Transit', time: '12:02 PM' },
-      { date: '25 Jan', status: 'Delivered', time: '--:--' },
-    ],
+    id: 1,
+    origen: "Buenos Aires",
+    destino: "Córdoba",
+    km: "700.50",
+    comision: "50.00",
+    precio: "1500.00",
+    forma_pago: "Transferencia",
+    descripcion_carga: "Electrodomésticos varios",
+    fecha_creacion: "2025-05-16T14:23:45Z"
   },
   {
-    id: '#FR156KL89K',
-    status: 'Checking',
-    progress: 20,
-    steps: [
-      { date: '22 Jan', status: 'Checking', time: '11:28 AM' },
-      { date: '26 Jan', status: 'In Transit', time: '--:--' },
-      { date: '30 Jan', status: 'Delivered', time: '--:--' },
-    ],
+    id: 2,
+    origen: "Rosario",
+    destino: "Mendoza",
+    km: "850.75",
+    comision: "60.00",
+    precio: "2000.00",
+    forma_pago: "Contado",
+    descripcion_carga: "Material de construcción",
+    fecha_creacion: "2025-05-15T10:12:30Z"
   },
   {
-    id: '#LN236NB89R',
-    status: 'Checking',
-    progress: 15,
-    steps: [
-      { date: '23 Jan', status: 'Checking', time: '09:28 AM' },
-      { date: '27 Jan', status: 'In Transit', time: '--:--' },
-      { date: '1 Feb', status: 'Delivered', time: '--:--' },
-    ],
+    id: 3,
+    origen: "La Plata",
+    destino: "Mar del Plata",
+    km: "350.25",
+    comision: "40.00",
+    precio: "1200.00",
+    forma_pago: "Tarjeta",
+    descripcion_carga: "Productos alimenticios",
+    fecha_creacion: "2025-05-14T08:45:15Z"
   },
   {
-    id: '#CT789MP45Q',
-    status: 'Delivered',
-    progress: 100,
-    steps: [
-      { date: '18 Jan', status: 'Checking', time: '08:15 AM' },
-      { date: '19 Jan', status: 'In Transit', time: '10:45 AM' },
-      { date: '22 Jan', status: 'Delivered', time: '14:30 PM' },
-    ],
-  },
+    id: 4,
+    origen: "Bahía Blanca",
+    destino: "Neuquén",
+    km: "550.80",
+    comision: "55.00",
+    precio: "1800.00",
+    forma_pago: "Transferencia",
+    descripcion_carga: "Maquinaria industrial",
+    fecha_creacion: "2025-05-13T16:30:20Z"
+  }
 ];
 
 const Index: React.FC = () => {
@@ -63,8 +66,8 @@ const Index: React.FC = () => {
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
   const [filteredOrders, setFilteredOrders] = useState<Order[]>(MOCK_ORDERS);
   const [filters, setFilters] = useState<FilterType>({
-    dateRange: '21 Jan - 1 Feb',
-    status: ['Checking', 'In Transit'],
+    dateRange: '',
+    status: ['Active'],
   });
   const [mapboxToken, setMapboxToken] = useState<string>('');
   const [searchQuery, setSearchQuery] = useState('');
@@ -94,13 +97,9 @@ const Index: React.FC = () => {
     
     if (searchQuery) {
       result = result.filter(order => 
-        order.id.toLowerCase().includes(searchQuery.toLowerCase())
-      );
-    }
-    
-    if (filters.status && filters.status.length > 0) {
-      result = result.filter(order => 
-        filters.status?.includes(order.status)
+        order.origen.toLowerCase().includes(searchQuery.toLowerCase()) || 
+        order.destino.toLowerCase().includes(searchQuery.toLowerCase()) || 
+        order.id.toString().includes(searchQuery)
       );
     }
     
@@ -114,7 +113,7 @@ const Index: React.FC = () => {
     setCurrentPage(1); // Reset to first page when filters change
   }, [filters, searchQuery, selectedOrder]);
 
-  const handleOrderClick = (orderId: string) => {
+  const handleOrderClick = (orderId: number) => {
     const order = MOCK_ORDERS.find(o => o.id === orderId) || null;
     setSelectedOrder(order);
     if (isMobile) {
@@ -152,7 +151,7 @@ const Index: React.FC = () => {
         {(!isMobile || !showDetails) && (
           <div className="w-full md:w-[400px] p-4 overflow-y-auto">
             <div className="mb-6">
-              <h1 className="text-2xl font-bold mb-1">Seguimiento de Entregas</h1>
+              <h1 className="text-2xl font-bold mb-1">Seguimiento de Cargas</h1>
               <p className="text-gray-500">Monitorea y gestiona tus envíos</p>
             </div>
             
@@ -230,7 +229,7 @@ const Index: React.FC = () => {
           </div>
         )}
         
-        {/* Map and Details - Right column */}
+        {/* Map - Right column */}
         {(!isMobile || showDetails) && (
           <div className="flex-1 p-4 flex flex-col overflow-y-auto">
             {isMobile && (
@@ -246,11 +245,9 @@ const Index: React.FC = () => {
               <MapboxTokenInput onSubmit={handleMapboxTokenSubmit} />
             )}
             
-            <div className="h-[400px] mb-4">
-              <MapComponent selectedOrder={selectedOrder} mapboxToken={mapboxToken} />
+            <div className="h-[500px] mb-4">
+              <MapComponent orders={filteredOrders} mapboxToken={mapboxToken} />
             </div>
-            
-            <OrderDetails order={selectedOrder} />
           </div>
         )}
       </div>

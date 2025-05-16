@@ -3,126 +3,94 @@ import React from 'react';
 import { MoreVertical } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import { useNavigate } from "react-router-dom";
 
-export type OrderStatus = 'Checking' | 'In Transit' | 'Delivered';
-
-export type OrderStep = {
-  date: string;
-  status: OrderStatus;
-  time: string;
-};
+export type OrderStatus = 'Active' | 'Completed' | 'Cancelled';
 
 export type Order = {
-  id: string;
-  status: OrderStatus;
-  progress: number;
-  steps: OrderStep[];
+  id: number;
+  origen: string;
+  destino: string;
+  km: string;
+  comision: string;
+  precio: string;
+  forma_pago: string;
+  descripcion_carga: string;
+  fecha_creacion: string;
+  status?: OrderStatus;
   active?: boolean;
 };
 
 interface OrderCardProps {
   order: Order;
-  onOrderClick: (id: string) => void;
+  onOrderClick: (id: number) => void;
 }
 
-const statusColors: Record<OrderStatus, string> = {
-  'Checking': 'bg-yellow-500',
-  'In Transit': 'bg-blue-600',
-  'Delivered': 'bg-green-500',
-};
-
-const statusBgColors: Record<OrderStatus, string> = {
-  'Checking': 'bg-yellow-100 text-yellow-800',
-  'In Transit': 'bg-blue-100 text-blue-800',
-  'Delivered': 'bg-green-100 text-green-800',
-};
-
 const OrderCard: React.FC<OrderCardProps> = ({ order, onOrderClick }) => {
+  const navigate = useNavigate();
+  
+  const handleCardClick = () => {
+    onOrderClick(order.id);
+    navigate(`/route/${order.id}`);
+  };
+
+  // Format the date
+  const formattedDate = new Date(order.fecha_creacion).toLocaleDateString('es-ES', {
+    day: 'numeric',
+    month: 'short',
+    year: 'numeric'
+  });
+
   return (
     <div 
       className={cn(
         "p-4 bg-white rounded-xl mb-4 cursor-pointer transition-all hover:shadow-md",
-        order.active ? "ring-2 ring-blue-500" : "",
-        order.status === 'In Transit' ? "bg-blue-600 text-white" : "bg-white"
+        order.active ? "ring-2 ring-blue-500" : ""
       )}
-      onClick={() => onOrderClick(order.id)}
+      onClick={handleCardClick}
     >
       <div className="flex justify-between items-center mb-4">
         <div>
-          <div className="text-sm font-medium mb-1">Order ID:</div>
-          <div className="font-semibold">{order.id}</div>
+          <div className="text-sm font-medium mb-1">Orden ID:</div>
+          <div className="font-semibold">#{order.id}</div>
         </div>
         
-        {order.status !== 'In Transit' && (
-          <div className={cn("px-3 py-1 rounded-full text-xs font-medium", statusBgColors[order.status])}>
-            {order.status}
-          </div>
-        )}
-        
-        {order.status === 'In Transit' && (
-          <div className="px-3 py-1 rounded-full text-xs font-medium bg-blue-500 text-white">
-            {order.status}
-          </div>
-        )}
+        <div className="px-3 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+          Activa
+        </div>
       </div>
       
       <div className="w-full bg-gray-200 h-1.5 rounded-full overflow-hidden mb-4">
         <div 
-          className={cn(
-            "h-full rounded-full",
-            order.status === 'In Transit' ? "bg-green-500" : "bg-blue-600"
-          )}
-          style={{ width: `${order.progress}%` }}
+          className="h-full rounded-full bg-blue-600"
+          style={{ width: '60%' }}
         />
       </div>
       
-      <div className="relative pl-6">
-        {order.steps.length > 1 && <div className="tracking-status-line" />}
+      <div className="space-y-3">
+        <div className="flex justify-between">
+          <div className="text-sm text-gray-600">Origen:</div>
+          <div className="text-sm font-medium">{order.origen}</div>
+        </div>
         
-        {order.steps.map((step, index) => (
-          <div key={index} className="relative mb-6 last:mb-0">
-            <div className="flex items-center mb-1">
-              <div 
-                className={cn(
-                  "tracking-status-dot absolute -left-6",
-                  step.status === order.status 
-                    ? statusColors[step.status] 
-                    : index < order.steps.findIndex(s => s.status === order.status)
-                      ? "bg-blue-600"
-                      : "bg-gray-200 border-2 border-white"
-                )}
-              />
-              <div className={cn(
-                "text-sm font-medium",
-                order.status === 'In Transit' ? "text-blue-100" : ""
-              )}>
-                {step.date}
-              </div>
-            </div>
-            
-            <div className="flex justify-between items-center">
-              <div className={cn(
-                "text-sm",
-                order.status === 'In Transit' ? "text-white" : "text-gray-600"
-              )}>
-                {step.status}
-              </div>
-              <div className={cn(
-                "text-sm",
-                order.status === 'In Transit' ? "text-white" : "text-gray-600"
-              )}>
-                {step.time}
-              </div>
-            </div>
-          </div>
-        ))}
+        <div className="flex justify-between">
+          <div className="text-sm text-gray-600">Destino:</div>
+          <div className="text-sm font-medium">{order.destino}</div>
+        </div>
+        
+        <div className="flex justify-between">
+          <div className="text-sm text-gray-600">Fecha:</div>
+          <div className="text-sm font-medium">{formattedDate}</div>
+        </div>
+        
+        <div className="flex justify-between">
+          <div className="text-sm text-gray-600">Precio:</div>
+          <div className="text-sm font-medium">${order.precio}</div>
+        </div>
       </div>
       
       <Button variant="ghost" size="icon" className="absolute top-3 right-2">
-        <MoreVertical 
-          size={20} 
-          className={order.status === 'In Transit' ? "text-white" : "text-gray-500"}
-        />
+        <MoreVertical size={20} className="text-gray-500" />
       </Button>
     </div>
   );
