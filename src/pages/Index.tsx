@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import AppSidebar from '@/components/AppSidebar';
 import OrderCard, { Order } from '@/components/OrderCard';
@@ -7,6 +6,14 @@ import MapComponent from '@/components/MapComponent';
 import OrderDetails from '@/components/OrderDetails';
 import MapboxTokenInput from '@/components/MapboxTokenInput';
 import { useIsMobile } from '@/hooks/use-mobile';
+import { 
+  Pagination, 
+  PaginationContent, 
+  PaginationItem, 
+  PaginationLink, 
+  PaginationNext, 
+  PaginationPrevious 
+} from '@/components/ui/pagination';
 
 const MOCK_ORDERS: Order[] = [
   {
@@ -63,6 +70,16 @@ const Index: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const isMobile = useIsMobile();
   const [showDetails, setShowDetails] = useState(false);
+  
+  // Pagination state
+  const [currentPage, setCurrentPage] = useState(1);
+  const ordersPerPage = 3; // Número de órdenes por página
+  
+  // Calculate paginated orders
+  const indexOfLastOrder = currentPage * ordersPerPage;
+  const indexOfFirstOrder = indexOfLastOrder - ordersPerPage;
+  const currentOrders = filteredOrders.slice(indexOfFirstOrder, indexOfLastOrder);
+  const totalPages = Math.ceil(filteredOrders.length / ordersPerPage);
 
   useEffect(() => {
     const savedToken = localStorage.getItem('mapboxToken');
@@ -94,6 +111,7 @@ const Index: React.FC = () => {
     }));
     
     setFilteredOrders(result);
+    setCurrentPage(1); // Reset to first page when filters change
   }, [filters, searchQuery, selectedOrder]);
 
   const handleOrderClick = (orderId: string) => {
@@ -121,6 +139,10 @@ const Index: React.FC = () => {
     setSidebarCollapsed(!sidebarCollapsed);
   };
 
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page);
+  };
+
   return (
     <div className="flex min-h-screen bg-gray-100">
       <AppSidebar collapsed={sidebarCollapsed || isMobile} onToggle={toggleSidebar} />
@@ -141,7 +163,7 @@ const Index: React.FC = () => {
             />
             
             <div className="space-y-4">
-              {filteredOrders.map((order) => (
+              {currentOrders.map((order) => (
                 <OrderCard 
                   key={order.id} 
                   order={order}
@@ -155,6 +177,56 @@ const Index: React.FC = () => {
                 </div>
               )}
             </div>
+
+            {/* Pagination Component */}
+            {filteredOrders.length > 0 && (
+              <div className="mt-6">
+                <Pagination>
+                  <PaginationContent>
+                    {currentPage > 1 && (
+                      <PaginationItem>
+                        <PaginationPrevious onClick={() => handlePageChange(currentPage - 1)} />
+                      </PaginationItem>
+                    )}
+                    
+                    {Array.from({ length: Math.min(totalPages, 5) }).map((_, index) => {
+                      // Logic to show around current page
+                      let pageNumber;
+                      if (totalPages <= 5) {
+                        // Show all page numbers if total pages is 5 or less
+                        pageNumber = index + 1;
+                      } else if (currentPage <= 3) {
+                        // For pages 1-3, show pages 1-5
+                        pageNumber = index + 1;
+                      } else if (currentPage >= totalPages - 2) {
+                        // For the last 3 pages, show the last 5 pages
+                        pageNumber = totalPages - 4 + index;
+                      } else {
+                        // Otherwise show 2 pages before and after current page
+                        pageNumber = currentPage - 2 + index;
+                      }
+                      
+                      return (
+                        <PaginationItem key={pageNumber}>
+                          <PaginationLink
+                            isActive={pageNumber === currentPage}
+                            onClick={() => handlePageChange(pageNumber)}
+                          >
+                            {pageNumber}
+                          </PaginationLink>
+                        </PaginationItem>
+                      );
+                    })}
+                    
+                    {currentPage < totalPages && (
+                      <PaginationItem>
+                        <PaginationNext onClick={() => handlePageChange(currentPage + 1)} />
+                      </PaginationItem>
+                    )}
+                  </PaginationContent>
+                </Pagination>
+              </div>
+            )}
           </div>
         )}
         
