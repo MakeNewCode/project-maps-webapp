@@ -114,12 +114,12 @@ const MapComponent: React.FC<MapComponentProps> = ({ orders, selectedOrder, mapb
         markersRef.current.push(destMarker);
         bounds.extend(new mapboxgl.LngLat(destCoords[0], destCoords[1]));
         
-        // Add route line
+        // Add route line - Fix the GeoJSON format
         const routeCoords = {
-          'type': 'Feature',
+          'type': 'Feature' as const,
           'properties': {},
           'geometry': {
-            'type': 'LineString',
+            'type': 'LineString' as const,
             'coordinates': [originCoords, destCoords]
           }
         };

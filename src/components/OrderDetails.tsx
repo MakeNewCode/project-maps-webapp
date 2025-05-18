@@ -36,15 +36,15 @@ const OrderDetails: React.FC<OrderDetailsProps> = ({ order }) => {
             </div>
             <div>
               <h3 className="text-sm text-gray-500">Fecha de Creación</h3>
-              <p className="font-medium">{order.steps[0].date}</p>
+              <p className="font-medium">{new Date(order.fecha_creacion).toLocaleDateString()}</p>
             </div>
             <div>
               <h3 className="text-sm text-gray-500">Estado Actual</h3>
-              <p className="font-medium">{order.status}</p>
+              <p className="font-medium">{order.status || "Activa"}</p>
             </div>
             <div>
               <h3 className="text-sm text-gray-500">Destino</h3>
-              <p className="font-medium">Mar del Plata, Buenos Aires</p>
+              <p className="font-medium">{order.destino}</p>
             </div>
           </div>
         </TabsContent>
