@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import MapComponent from '@/components/MapComponent';
@@ -6,8 +5,9 @@ import MapboxTokenInput from '@/components/MapboxTokenInput';
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { useIsMobile } from '@/hooks/use-mobile';
-import { ArrowLeft } from 'lucide-react';
+import { ArrowLeft, MapPin, Calendar, DollarSign, Truck, CreditCard } from 'lucide-react';
 import { Order } from '@/components/OrderCard';
+import { Badge } from "@/components/ui/badge";
 
 // Mock orders data - same as Index page
 const MOCK_ORDERS: Order[] = [
@@ -138,61 +138,98 @@ const RouteDetails: React.FC = () => {
           </Card>
         </div>
         
-        {/* Details column */}
+        {/* Details column - Updated with new style */}
         <div className="lg:col-span-1">
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex justify-between items-center">
-                <span>Detalles de la Carga</span>
-                <span className="text-sm bg-blue-100 text-blue-800 px-3 py-1 rounded-full">
+          <Card className="shadow-md border-0">
+            <CardHeader className="pb-0">
+              <CardTitle className="text-xl font-bold">
+                Detalles de la Carga
+                <Badge className="ml-2 bg-blue-100 text-blue-800 hover:bg-blue-200">
                   Activa
-                </span>
+                </Badge>
               </CardTitle>
             </CardHeader>
-            <CardContent className="space-y-4">
-              <div>
-                <h3 className="text-sm text-gray-500">ID DE ORDEN</h3>
-                <p className="font-medium">#{order.id}</p>
+            <CardContent>
+              <div className="space-y-4 mt-6">
+                <div className="bg-blue-50 rounded-xl p-4 flex items-center gap-3">
+                  <div className="bg-blue-100 p-2 rounded-full">
+                    <MapPin className="text-blue-600" size={20} />
+                  </div>
+                  <div>
+                    <h3 className="text-xs text-gray-500">UBICACIÓN</h3>
+                    <p className="font-medium">
+                      {order.origen} → {order.destino}
+                    </p>
+                  </div>
+                </div>
+                
+                <div className="bg-yellow-50 rounded-xl p-4 flex items-center gap-3">
+                  <div className="bg-yellow-100 p-2 rounded-full">
+                    <Truck className="text-yellow-600" size={20} />
+                  </div>
+                  <div>
+                    <h3 className="text-xs text-gray-500">DESCRIPCIÓN</h3>
+                    <p className="font-medium">
+                      {order.descripcion_carga}
+                    </p>
+                  </div>
+                </div>
+                
+                <div className="bg-green-50 rounded-xl p-4 flex items-center gap-3">
+                  <div className="bg-green-100 p-2 rounded-full">
+                    <DollarSign className="text-green-600" size={20} />
+                  </div>
+                  <div>
+                    <h3 className="text-xs text-gray-500">PRECIO</h3>
+                    <p className="font-medium">${order.precio}</p>
+                  </div>
+                </div>
+                
+                <div className="bg-purple-50 rounded-xl p-4 flex items-center gap-3">
+                  <div className="bg-purple-100 p-2 rounded-full">
+                    <DollarSign className="text-purple-600" size={20} />
+                  </div>
+                  <div>
+                    <h3 className="text-xs text-gray-500">COMISIÓN</h3>
+                    <p className="font-medium">${order.comision}</p>
+                  </div>
+                </div>
+                
+                <div className="bg-red-50 rounded-xl p-4 flex items-center gap-3">
+                  <div className="bg-red-100 p-2 rounded-full">
+                    <CreditCard className="text-red-600" size={20} />
+                  </div>
+                  <div>
+                    <h3 className="text-xs text-gray-500">FORMA DE PAGO</h3>
+                    <p className="font-medium">{order.forma_pago}</p>
+                  </div>
+                </div>
+                
+                <div className="bg-orange-50 rounded-xl p-4 flex items-center gap-3">
+                  <div className="bg-orange-100 p-2 rounded-full">
+                    <Calendar className="text-orange-600" size={20} />
+                  </div>
+                  <div>
+                    <h3 className="text-xs text-gray-500">FECHA DE CREACIÓN</h3>
+                    <p className="font-medium">{formattedDate}</p>
+                  </div>
+                </div>
+                
+                <div className="bg-slate-50 rounded-xl p-4 flex items-center gap-3">
+                  <div className="bg-slate-100 p-2 rounded-full">
+                    <MapPin className="text-slate-600" size={20} />
+                  </div>
+                  <div>
+                    <h3 className="text-xs text-gray-500">DISTANCIA</h3>
+                    <p className="font-medium">{order.km} km</p>
+                  </div>
+                </div>
               </div>
               
-              <div>
-                <h3 className="text-sm text-gray-500">ORIGEN</h3>
-                <p className="font-medium">{order.origen}</p>
-              </div>
-              
-              <div>
-                <h3 className="text-sm text-gray-500">DESTINO</h3>
-                <p className="font-medium">{order.destino}</p>
-              </div>
-              
-              <div>
-                <h3 className="text-sm text-gray-500">DISTANCIA</h3>
-                <p className="font-medium">{order.km} km</p>
-              </div>
-              
-              <div>
-                <h3 className="text-sm text-gray-500">PRECIO</h3>
-                <p className="font-medium">${order.precio}</p>
-              </div>
-              
-              <div>
-                <h3 className="text-sm text-gray-500">COMISIÓN</h3>
-                <p className="font-medium">${order.comision}</p>
-              </div>
-              
-              <div>
-                <h3 className="text-sm text-gray-500">FORMA DE PAGO</h3>
-                <p className="font-medium">{order.forma_pago}</p>
-              </div>
-              
-              <div>
-                <h3 className="text-sm text-gray-500">DESCRIPCIÓN DE CARGA</h3>
-                <p className="font-medium">{order.descripcion_carga}</p>
-              </div>
-              
-              <div>
-                <h3 className="text-sm text-gray-500">FECHA DE CREACIÓN</h3>
-                <p className="font-medium">{formattedDate}</p>
+              <div className="mt-8 flex justify-center">
+                <Button variant="outline" className="w-full">
+                  Ver más detalles
+                </Button>
               </div>
             </CardContent>
           </Card>
