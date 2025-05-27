@@ -1,444 +1,229 @@
+import { useState } from 'react';
+import { Link } from 'react-router-dom';
+import { SidebarProvider, SidebarInset, SidebarTrigger } from "@/components/ui/sidebar";
+import AppSidebar from '@/components/AppSidebar';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { Eye, Edit, Trash2, Plus, Package, MapPin, Calendar, DollarSign } from 'lucide-react';
+import { toast } from 'sonner';
 
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import { Plus, Eye, Trash2, Edit } from 'lucide-react';
-import { Order } from '@/components/OrderCard';
+interface Cargo {
+  id: string;
+  cliente: string;
+  direccion: string;
+  descripcion: string;
+  peso: number;
+  paquetes: number;
+  valor: number;
+  prioridad: 'alta' | 'media' | 'baja';
+  estado: 'pendiente' | 'en_transito' | 'entregado' | 'cancelado';
+  fechaEntrega: string;
+}
 
-// Mock data - same as other pages
-const INITIAL_ORDERS: Order[] = [
+const mockCargos: Cargo[] = [
   {
-    id: 1,
-    origen: "Buenos Aires",
-    destino: "Córdoba",
-    km: "700.50",
-    comision: "50.00",
-    precio: "1500.00",
-    forma_pago: "Transferencia",
-    descripcion_carga: "Electrodomésticos varios",
-    fecha_creacion: "2025-05-16T14:23:45Z"
+    id: "CRG-001",
+    cliente: "Distribuidora Acme",
+    direccion: "Calle Principal 123, Ciudad",
+    descripcion: "Carga de productos electrónicos",
+    peso: 1200,
+    paquetes: 50,
+    valor: 75000,
+    prioridad: "alta",
+    estado: "pendiente",
+    fechaEntrega: "2024-03-20"
   },
   {
-    id: 2,
-    origen: "Rosario",
-    destino: "Mendoza",
-    km: "850.75",
-    comision: "60.00",
-    precio: "2000.00",
-    forma_pago: "Contado",
-    descripcion_carga: "Material de construcción",
-    fecha_creacion: "2025-05-15T10:12:30Z"
+    id: "CRG-002",
+    cliente: "Importaciones Beta",
+    direccion: "Avenida Central 456, Ciudad",
+    descripcion: "Carga de repuestos automotrices",
+    peso: 850,
+    paquetes: 30,
+    valor: 48000,
+    prioridad: "media",
+    estado: "en_transito",
+    fechaEntrega: "2024-03-22"
   },
   {
-    id: 3,
-    origen: "La Plata",
-    destino: "Mar del Plata",
-    km: "350.25",
-    comision: "40.00",
-    precio: "1200.00",
-    forma_pago: "Tarjeta",
-    descripcion_carga: "Productos alimenticios",
-    fecha_creacion: "2025-05-14T08:45:15Z"
+    id: "CRG-003",
+    cliente: "Logística Gamma",
+    direccion: "Calle Secundaria 789, Ciudad",
+    descripcion: "Carga de textiles",
+    peso: 500,
+    paquetes: 100,
+    valor: 32000,
+    prioridad: "baja",
+    estado: "entregado",
+    fechaEntrega: "2024-03-15"
   },
   {
-    id: 4,
-    origen: "Bahía Blanca",
-    destino: "Neuquén",
-    km: "550.80",
-    comision: "55.00",
-    precio: "1800.00",
-    forma_pago: "Transferencia",
-    descripcion_carga: "Maquinaria industrial",
-    fecha_creacion: "2025-05-13T16:30:20Z"
+    id: "CRG-004",
+    cliente: "Exportaciones Delta",
+    direccion: "Avenida Costanera 101, Ciudad",
+    descripcion: "Carga de productos alimenticios",
+    peso: 1500,
+    paquetes: 60,
+    valor: 92000,
+    prioridad: "alta",
+    estado: "pendiente",
+    fechaEntrega: "2024-03-25"
+  },
+  {
+    id: "CRG-005",
+    cliente: "Comercializadora Omega",
+    direccion: "Calle Industrial 222, Ciudad",
+    descripcion: "Carga de maquinaria industrial",
+    peso: 2000,
+    paquetes: 10,
+    valor: 120000,
+    prioridad: "media",
+    estado: "en_transito",
+    fechaEntrega: "2024-03-28"
   }
 ];
 
-const CargoManagement: React.FC = () => {
-  const navigate = useNavigate();
-  const [orders, setOrders] = useState<Order[]>(INITIAL_ORDERS);
-  const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
-  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
-  const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
-  const [formData, setFormData] = useState({
-    origen: '',
-    destino: '',
-    km: '',
-    comision: '',
-    precio: '',
-    forma_pago: '',
-    descripcion_carga: ''
-  });
+const CargoManagement = () => {
+  const [cargos, setCargos] = useState<Cargo[]>(mockCargos);
 
-  const resetForm = () => {
-    setFormData({
-      origen: '',
-      destino: '',
-      km: '',
-      comision: '',
-      precio: '',
-      forma_pago: '',
-      descripcion_carga: ''
-    });
+  const handleDelete = (cargoId: string) => {
+    setCargos(cargos.filter(cargo => cargo.id !== cargoId));
+    toast.success(`Carga ${cargoId} eliminada`);
   };
 
-  const handleCreate = () => {
-    const newOrder: Order = {
-      id: Math.max(...orders.map(o => o.id)) + 1,
-      ...formData,
-      fecha_creacion: new Date().toISOString()
+  const getStatusBadge = (status: Cargo['estado']) => {
+    const statusConfig = {
+      pendiente: { color: 'bg-yellow-100 text-yellow-800', label: 'Pendiente' },
+      en_transito: { color: 'bg-blue-100 text-blue-800', label: 'En Tránsito' },
+      entregado: { color: 'bg-green-100 text-green-800', label: 'Entregado' },
+      cancelado: { color: 'bg-red-100 text-red-800', label: 'Cancelado' }
     };
-    setOrders([...orders, newOrder]);
-    setIsCreateDialogOpen(false);
-    resetForm();
+    return statusConfig[status];
   };
 
-  const handleEdit = (order: Order) => {
-    setSelectedOrder(order);
-    setFormData({
-      origen: order.origen,
-      destino: order.destino,
-      km: order.km,
-      comision: order.comision,
-      precio: order.precio,
-      forma_pago: order.forma_pago,
-      descripcion_carga: order.descripcion_carga
-    });
-    setIsEditDialogOpen(true);
-  };
-
-  const handleUpdate = () => {
-    if (!selectedOrder) return;
-    
-    const updatedOrders = orders.map(order =>
-      order.id === selectedOrder.id
-        ? { ...order, ...formData }
-        : order
-    );
-    setOrders(updatedOrders);
-    setIsEditDialogOpen(false);
-    setSelectedOrder(null);
-    resetForm();
-  };
-
-  const handleDelete = (id: number) => {
-    if (window.confirm('¿Estás seguro de que quieres eliminar esta carga?')) {
-      setOrders(orders.filter(order => order.id !== id));
-    }
-  };
-
-  const handleViewDetails = (id: number) => {
-    navigate(`/route/${id}`);
-  };
-
-  const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('es-ES', {
-      day: '2-digit',
-      month: '2-digit',
-      year: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit'
-    });
-  };
-
-  const getPaymentMethodBadgeColor = (method: string) => {
-    switch (method.toLowerCase()) {
-      case 'transferencia': return 'bg-blue-100 text-blue-800';
-      case 'contado': return 'bg-green-100 text-green-800';
-      case 'tarjeta': return 'bg-purple-100 text-purple-800';
-      default: return 'bg-gray-100 text-gray-800';
-    }
+  const getPriorityBadge = (priority: Cargo['prioridad']) => {
+    const priorityConfig = {
+      alta: { color: 'bg-red-100 text-red-800', label: 'Alta' },
+      media: { color: 'bg-orange-100 text-orange-800', label: 'Media' },
+      baja: { color: 'bg-gray-100 text-gray-800', label: 'Baja' }
+    };
+    return priorityConfig[priority];
   };
 
   return (
-    <div className="container mx-auto p-6">
-      <div className="flex justify-between items-center mb-6">
-        <div>
-          <h1 className="text-3xl font-bold">Gestión de Cargas</h1>
-          <p className="text-gray-600 mt-1">Administra todas las cargas del sistema</p>
-        </div>
-        
-        <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
-          <DialogTrigger asChild>
-            <Button onClick={() => setIsCreateDialogOpen(true)} className="flex items-center gap-2">
-              <Plus size={20} />
-              Nueva Carga
-            </Button>
-          </DialogTrigger>
-          <DialogContent className="max-w-2xl">
-            <DialogHeader>
-              <DialogTitle>Crear Nueva Carga</DialogTitle>
-              <DialogDescription>
-                Completa los datos para crear una nueva carga
-              </DialogDescription>
-            </DialogHeader>
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <Label htmlFor="origen">Origen</Label>
-                <Input
-                  id="origen"
-                  value={formData.origen}
-                  onChange={(e) => setFormData({...formData, origen: e.target.value})}
-                  placeholder="Ciudad de origen"
-                />
+    <SidebarProvider>
+      <div className="min-h-screen flex w-full">
+        <AppSidebar />
+        <SidebarInset>
+          <div className="flex flex-col h-full">
+            <header className="flex items-center justify-between px-4 py-2 border-b">
+              <div className="flex items-center gap-2">
+                <SidebarTrigger />
+                <h1 className="text-xl font-semibold">Gestión de Cargas</h1>
               </div>
-              <div>
-                <Label htmlFor="destino">Destino</Label>
-                <Input
-                  id="destino"
-                  value={formData.destino}
-                  onChange={(e) => setFormData({...formData, destino: e.target.value})}
-                  placeholder="Ciudad de destino"
-                />
+              <Link to="/cargo-management/create">
+                <Button className="flex items-center gap-2">
+                  <Plus className="h-4 w-4" />
+                  Nueva Carga
+                </Button>
+              </Link>
+            </header>
+            
+            <div className="flex-1 p-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="text-lg font-semibold">Cargas Pendientes</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="text-2xl font-bold">{cargos.filter(cargo => cargo.estado === 'pendiente').length}</div>
+                  </CardContent>
+                </Card>
+                
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="text-lg font-semibold">Cargas En Tránsito</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="text-2xl font-bold">{cargos.filter(cargo => cargo.estado === 'en_transito').length}</div>
+                  </CardContent>
+                </Card>
+                
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="text-lg font-semibold">Cargas Entregadas</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="text-2xl font-bold">{cargos.filter(cargo => cargo.estado === 'entregado').length}</div>
+                  </CardContent>
+                </Card>
               </div>
-              <div>
-                <Label htmlFor="km">Kilómetros</Label>
-                <Input
-                  id="km"
-                  value={formData.km}
-                  onChange={(e) => setFormData({...formData, km: e.target.value})}
-                  placeholder="0.00"
-                />
-              </div>
-              <div>
-                <Label htmlFor="precio">Precio</Label>
-                <Input
-                  id="precio"
-                  value={formData.precio}
-                  onChange={(e) => setFormData({...formData, precio: e.target.value})}
-                  placeholder="0.00"
-                />
-              </div>
-              <div>
-                <Label htmlFor="comision">Comisión</Label>
-                <Input
-                  id="comision"
-                  value={formData.comision}
-                  onChange={(e) => setFormData({...formData, comision: e.target.value})}
-                  placeholder="0.00"
-                />
-              </div>
-              <div>
-                <Label htmlFor="forma_pago">Forma de Pago</Label>
-                <Select value={formData.forma_pago} onValueChange={(value) => setFormData({...formData, forma_pago: value})}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Seleccionar forma de pago" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="Transferencia">Transferencia</SelectItem>
-                    <SelectItem value="Contado">Contado</SelectItem>
-                    <SelectItem value="Tarjeta">Tarjeta</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-              <div className="col-span-2">
-                <Label htmlFor="descripcion_carga">Descripción de la Carga</Label>
-                <Textarea
-                  id="descripcion_carga"
-                  value={formData.descripcion_carga}
-                  onChange={(e) => setFormData({...formData, descripcion_carga: e.target.value})}
-                  placeholder="Describe el tipo de carga..."
-                />
-              </div>
+
+              <Card>
+                <CardHeader>
+                  <CardTitle>Lista de Cargas</CardTitle>
+                </CardHeader>
+                <CardContent className="overflow-auto">
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead>Cliente</TableHead>
+                        <TableHead>Dirección</TableHead>
+                        <TableHead>Peso</TableHead>
+                        <TableHead>Paquetes</TableHead>
+                        <TableHead>Valor</TableHead>
+                        <TableHead>Prioridad</TableHead>
+                        <TableHead>Estado</TableHead>
+                        <TableHead>Fecha Entrega</TableHead>
+                        <TableHead className="text-right">Acciones</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {cargos.map((cargo) => {
+                        const statusBadge = getStatusBadge(cargo.estado);
+                        const priorityBadge = getPriorityBadge(cargo.prioridad);
+
+                        return (
+                          <TableRow key={cargo.id}>
+                            <TableCell>{cargo.cliente}</TableCell>
+                            <TableCell>{cargo.direccion}</TableCell>
+                            <TableCell>{cargo.peso} kg</TableCell>
+                            <TableCell>{cargo.paquetes}</TableCell>
+                            <TableCell>${cargo.valor}</TableCell>
+                            <TableCell>
+                              <Badge className={priorityBadge.color}>{priorityBadge.label}</Badge>
+                            </TableCell>
+                            <TableCell>
+                              <Badge className={statusBadge.color}>{statusBadge.label}</Badge>
+                            </TableCell>
+                            <TableCell>{cargo.fechaEntrega}</TableCell>
+                            <TableCell className="text-right">
+                              <div className="flex justify-end gap-2">
+                                <Button size="icon" variant="ghost">
+                                  <Eye className="h-4 w-4" />
+                                </Button>
+                                <Button size="icon" variant="ghost">
+                                  <Edit className="h-4 w-4" />
+                                </Button>
+                                <Button size="icon" variant="ghost" onClick={() => handleDelete(cargo.id)}>
+                                  <Trash2 className="h-4 w-4" />
+                                </Button>
+                              </div>
+                            </TableCell>
+                          </TableRow>
+                        );
+                      })}
+                    </TableBody>
+                  </Table>
+                </CardContent>
+              </Card>
             </div>
-            <div className="flex justify-end gap-2 mt-4">
-              <Button variant="outline" onClick={() => setIsCreateDialogOpen(false)}>
-                Cancelar
-              </Button>
-              <Button onClick={handleCreate}>
-                Crear Carga
-              </Button>
-            </div>
-          </DialogContent>
-        </Dialog>
+          </div>
+        </SidebarInset>
       </div>
-
-      <Card>
-        <CardHeader>
-          <CardTitle>Lista de Cargas ({orders.length})</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead className="w-12">ID</TableHead>
-                <TableHead>Origen</TableHead>
-                <TableHead>Destino</TableHead>
-                <TableHead>Distancia</TableHead>
-                <TableHead>Precio</TableHead>
-                <TableHead>Comisión</TableHead>
-                <TableHead>Forma de Pago</TableHead>
-                <TableHead>Fecha</TableHead>
-                <TableHead className="text-right">Acciones</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {orders.map((order) => (
-                <TableRow key={order.id}>
-                  <TableCell className="font-medium">#{order.id}</TableCell>
-                  <TableCell>{order.origen}</TableCell>
-                  <TableCell>{order.destino}</TableCell>
-                  <TableCell>{order.km} km</TableCell>
-                  <TableCell>${order.precio}</TableCell>
-                  <TableCell>${order.comision}</TableCell>
-                  <TableCell>
-                    <Badge className={getPaymentMethodBadgeColor(order.forma_pago)}>
-                      {order.forma_pago}
-                    </Badge>
-                  </TableCell>
-                  <TableCell>{formatDate(order.fecha_creacion)}</TableCell>
-                  <TableCell className="text-right">
-                    <div className="flex justify-end gap-1">
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => handleViewDetails(order.id)}
-                        title="Ver detalles"
-                      >
-                        <Eye size={16} />
-                      </Button>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => handleEdit(order)}
-                        title="Editar"
-                      >
-                        <Edit size={16} />
-                      </Button>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => handleDelete(order.id)}
-                        title="Eliminar"
-                        className="text-red-600 hover:text-red-700"
-                      >
-                        <Trash2 size={16} />
-                      </Button>
-                    </div>
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </CardContent>
-      </Card>
-
-      {/* Edit Dialog */}
-      <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
-        <DialogContent className="max-w-2xl">
-          <DialogHeader>
-            <DialogTitle>Editar Carga #{selectedOrder?.id}</DialogTitle>
-            <DialogDescription>
-              Modifica los datos de la carga
-            </DialogDescription>
-          </DialogHeader>
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <Label htmlFor="edit-origen">Origen</Label>
-              <Input
-                id="edit-origen"
-                value={formData.origen}
-                onChange={(e) => setFormData({...formData, origen: e.target.value})}
-                placeholder="Ciudad de origen"
-              />
-            </div>
-            <div>
-              <Label htmlFor="edit-destino">Destino</Label>
-              <Input
-                id="edit-destino"
-                value={formData.destino}
-                onChange={(e) => setFormData({...formData, destino: e.target.value})}
-                placeholder="Ciudad de destino"
-              />
-            </div>
-            <div>
-              <Label htmlFor="edit-km">Kilómetros</Label>
-              <Input
-                id="edit-km"
-                value={formData.km}
-                onChange={(e) => setFormData({...formData, km: e.target.value})}
-                placeholder="0.00"
-              />
-            </div>
-            <div>
-              <Label htmlFor="edit-precio">Precio</Label>
-              <Input
-                id="edit-precio"
-                value={formData.precio}
-                onChange={(e) => setFormData({...formData, precio: e.target.value})}
-                placeholder="0.00"
-              />
-            </div>
-            <div>
-              <Label htmlFor="edit-comision">Comisión</Label>
-              <Input
-                id="edit-comision"
-                value={formData.comision}
-                onChange={(e) => setFormData({...formData, comision: e.target.value})}
-                placeholder="0.00"
-              />
-            </div>
-            <div>
-              <Label htmlFor="edit-forma_pago">Forma de Pago</Label>
-              <Select value={formData.forma_pago} onValueChange={(value) => setFormData({...formData, forma_pago: value})}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Seleccionar forma de pago" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="Transferencia">Transferencia</SelectItem>
-                  <SelectItem value="Contado">Contado</SelectItem>
-                  <SelectItem value="Tarjeta">Tarjeta</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-            <div className="col-span-2">
-              <Label htmlFor="edit-descripcion_carga">Descripción de la Carga</Label>
-              <Textarea
-                id="edit-descripcion_carga"
-                value={formData.descripcion_carga}
-                onChange={(e) => setFormData({...formData, descripcion_carga: e.target.value})}
-                placeholder="Describe el tipo de carga..."
-              />
-            </div>
-          </div>
-          <div className="flex justify-end gap-2 mt-4">
-            <Button variant="outline" onClick={() => setIsEditDialogOpen(false)}>
-              Cancelar
-            </Button>
-            <Button onClick={handleUpdate}>
-              Actualizar
-            </Button>
-          </div>
-        </DialogContent>
-      </Dialog>
-    </div>
+    </SidebarProvider>
   );
 };
 

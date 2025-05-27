@@ -1,193 +1,202 @@
-
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+import { SidebarProvider, SidebarInset, SidebarTrigger } from "@/components/ui/sidebar";
+import AppSidebar from '@/components/AppSidebar';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { ArrowLeft, Save } from 'lucide-react';
-import { useToast } from "@/hooks/use-toast";
+import { toast } from 'sonner';
 
-const CreateCargo: React.FC = () => {
+const CreateCargo = () => {
   const navigate = useNavigate();
-  const { toast } = useToast();
   const [formData, setFormData] = useState({
-    origen: '',
-    destino: '',
-    km: '',
-    comision: '',
-    precio: '',
-    forma_pago: '',
-    descripcion_carga: ''
+    cliente: '',
+    direccion: '',
+    descripcion: '',
+    peso: '',
+    paquetes: '',
+    valor: '',
+    prioridad: '',
+    telefono: '',
+    notas: ''
   });
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    
-    // Validación básica
-    if (!formData.origen || !formData.destino || !formData.precio) {
-      toast({
-        title: "Error",
-        description: "Por favor completa los campos obligatorios",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    // Aquí normalmente enviarías los datos a la API
-    console.log('Nueva carga creada:', formData);
-    
-    toast({
-      title: "Éxito",
-      description: "Carga creada correctamente",
-    });
-
-    // Redirigir a la lista de cargas
+    // Here you would typically handle the form submission,
+    // such as sending the data to an API.
+    console.log(formData);
+    toast.success('Carga creada exitosamente!');
+    // After successful submission, navigate back to cargo management
     navigate('/cargo-management');
   };
 
-  const handleInputChange = (field: string, value: string) => {
-    setFormData(prev => ({
-      ...prev,
-      [field]: value
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    const { name, value } = e.target;
+    setFormData(prevState => ({
+      ...prevState,
+      [name]: value
+    }));
+  };
+
+  const handleSelectChange = (name: string, value: string) => {
+    setFormData(prevState => ({
+      ...prevState,
+      [name]: value
     }));
   };
 
   return (
-    <div className="container mx-auto p-6">
-      <div className="flex items-center gap-4 mb-6">
-        <Button 
-          variant="ghost" 
-          size="sm"
-          onClick={() => navigate('/cargo-management')}
-          className="flex items-center gap-2"
-        >
-          <ArrowLeft size={16} />
-          Volver
-        </Button>
-        <div>
-          <h1 className="text-3xl font-bold">Crear Nueva Carga</h1>
-          <p className="text-gray-600 mt-1">Completa los datos para registrar una nueva carga</p>
-        </div>
-      </div>
-
-      <Card className="max-w-4xl">
-        <CardHeader>
-          <CardTitle>Información de la Carga</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <form onSubmit={handleSubmit} className="space-y-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div className="space-y-2">
-                <Label htmlFor="origen">Origen *</Label>
-                <Input
-                  id="origen"
-                  value={formData.origen}
-                  onChange={(e) => handleInputChange('origen', e.target.value)}
-                  placeholder="Ciudad de origen"
-                  required
-                />
-              </div>
-              
-              <div className="space-y-2">
-                <Label htmlFor="destino">Destino *</Label>
-                <Input
-                  id="destino"
-                  value={formData.destino}
-                  onChange={(e) => handleInputChange('destino', e.target.value)}
-                  placeholder="Ciudad de destino"
-                  required
-                />
-              </div>
-              
-              <div className="space-y-2">
-                <Label htmlFor="km">Kilómetros</Label>
-                <Input
-                  id="km"
-                  type="number"
-                  step="0.01"
-                  value={formData.km}
-                  onChange={(e) => handleInputChange('km', e.target.value)}
-                  placeholder="0.00"
-                />
-              </div>
-              
-              <div className="space-y-2">
-                <Label htmlFor="precio">Precio *</Label>
-                <Input
-                  id="precio"
-                  type="number"
-                  step="0.01"
-                  value={formData.precio}
-                  onChange={(e) => handleInputChange('precio', e.target.value)}
-                  placeholder="0.00"
-                  required
-                />
-              </div>
-              
-              <div className="space-y-2">
-                <Label htmlFor="comision">Comisión</Label>
-                <Input
-                  id="comision"
-                  type="number"
-                  step="0.01"
-                  value={formData.comision}
-                  onChange={(e) => handleInputChange('comision', e.target.value)}
-                  placeholder="0.00"
-                />
-              </div>
-              
-              <div className="space-y-2">
-                <Label htmlFor="forma_pago">Forma de Pago</Label>
-                <Select value={formData.forma_pago} onValueChange={(value) => handleInputChange('forma_pago', value)}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Seleccionar forma de pago" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="Transferencia">Transferencia</SelectItem>
-                    <SelectItem value="Contado">Contado</SelectItem>
-                    <SelectItem value="Tarjeta">Tarjeta</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-            </div>
-            
-            <div className="space-y-2">
-              <Label htmlFor="descripcion_carga">Descripción de la Carga</Label>
-              <Textarea
-                id="descripcion_carga"
-                value={formData.descripcion_carga}
-                onChange={(e) => handleInputChange('descripcion_carga', e.target.value)}
-                placeholder="Describe el tipo de carga..."
-                rows={4}
-              />
-            </div>
-            
-            <div className="flex justify-end gap-4 pt-6">
-              <Button 
-                type="button" 
-                variant="outline" 
+    <SidebarProvider>
+      <div className="min-h-screen flex w-full">
+        <AppSidebar />
+        <SidebarInset>
+          <div className="flex flex-col h-full">
+            <header className="flex items-center gap-2 px-4 py-2 border-b">
+              <SidebarTrigger />
+              <Button
+                variant="ghost"
+                size="sm"
                 onClick={() => navigate('/cargo-management')}
+                className="flex items-center gap-2"
               >
-                Cancelar
+                <ArrowLeft className="h-4 w-4" />
+                Volver
               </Button>
-              <Button type="submit" className="flex items-center gap-2">
-                <Save size={16} />
-                Crear Carga
-              </Button>
+              <h1 className="text-xl font-semibold">Crear Nueva Carga</h1>
+            </header>
+            
+            <div className="flex-1 p-6">
+              <Card>
+                <CardHeader>
+                  <CardTitle>Información de la Carga</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <form onSubmit={handleSubmit} className="space-y-4">
+                    <div>
+                      <Label htmlFor="cliente">Cliente</Label>
+                      <Input
+                        type="text"
+                        id="cliente"
+                        name="cliente"
+                        value={formData.cliente}
+                        onChange={handleInputChange}
+                        placeholder="Nombre del cliente"
+                        required
+                      />
+                    </div>
+                    <div>
+                      <Label htmlFor="direccion">Dirección de Entrega</Label>
+                      <Input
+                        type="text"
+                        id="direccion"
+                        name="direccion"
+                        value={formData.direccion}
+                        onChange={handleInputChange}
+                        placeholder="Dirección completa"
+                        required
+                      />
+                    </div>
+                    <div>
+                      <Label htmlFor="descripcion">Descripción</Label>
+                      <Textarea
+                        id="descripcion"
+                        name="descripcion"
+                        value={formData.descripcion}
+                        onChange={handleInputChange}
+                        placeholder="Descripción detallada de la carga"
+                      />
+                    </div>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div>
+                        <Label htmlFor="peso">Peso (kg)</Label>
+                        <Input
+                          type="number"
+                          id="peso"
+                          name="peso"
+                          value={formData.peso}
+                          onChange={handleInputChange}
+                          placeholder="Peso en kilogramos"
+                          required
+                        />
+                      </div>
+                      <div>
+                        <Label htmlFor="paquetes">Número de Paquetes</Label>
+                        <Input
+                          type="number"
+                          id="paquetes"
+                          name="paquetes"
+                          value={formData.paquetes}
+                          onChange={handleInputChange}
+                          placeholder="Cantidad de paquetes"
+                          required
+                        />
+                      </div>
+                    </div>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div>
+                        <Label htmlFor="valor">Valor Declarado</Label>
+                        <Input
+                          type="number"
+                          id="valor"
+                          name="valor"
+                          value={formData.valor}
+                          onChange={handleInputChange}
+                          placeholder="Valor en pesos"
+                          required
+                        />
+                      </div>
+                      <div>
+                        <Label htmlFor="telefono">Teléfono de Contacto</Label>
+                        <Input
+                          type="tel"
+                          id="telefono"
+                          name="telefono"
+                          value={formData.telefono}
+                          onChange={handleInputChange}
+                          placeholder="Número de teléfono"
+                        />
+                      </div>
+                    </div>
+                    <div>
+                      <Label htmlFor="prioridad">Prioridad</Label>
+                      <Select onValueChange={(value) => handleSelectChange('prioridad', value)}>
+                        <SelectTrigger className="w-full">
+                          <SelectValue placeholder="Seleccionar prioridad" defaultValue={formData.prioridad} />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="alta">Alta</SelectItem>
+                          <SelectItem value="media">Media</SelectItem>
+                          <SelectItem value="baja">Baja</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <div>
+                      <Label htmlFor="notas">Notas Adicionales</Label>
+                      <Textarea
+                        id="notas"
+                        name="notas"
+                        value={formData.notas}
+                        onChange={handleInputChange}
+                        placeholder="Información adicional relevante"
+                      />
+                    </div>
+                    <Button type="submit" className="w-full flex items-center gap-2 justify-center">
+                      <Save className="h-4 w-4" />
+                      Crear Carga
+                    </Button>
+                  </form>
+                </CardContent>
+              </Card>
             </div>
-          </form>
-        </CardContent>
-      </Card>
-    </div>
+          </div>
+        </SidebarInset>
+      </div>
+    </SidebarProvider>
   );
 };
 
