@@ -32,6 +32,7 @@ import {
 import { Plus, Eye, Trash2, Edit } from 'lucide-react';
 import { Order } from '@/components/OrderCard';
 import ConfirmDeleteDialog from '@/components/ConfirmDeleteDialog';
+import { useToast } from "@/hooks/use-toast";
 
 // Mock data - same as other pages
 const INITIAL_ORDERS: Order[] = [
@@ -83,6 +84,7 @@ const INITIAL_ORDERS: Order[] = [
 
 const CargoManagement: React.FC = () => {
   const navigate = useNavigate();
+  const { toast } = useToast();
   const [orders, setOrders] = useState<Order[]>(INITIAL_ORDERS);
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
@@ -120,6 +122,13 @@ const CargoManagement: React.FC = () => {
     setOrders([...orders, newOrder]);
     setIsCreateDialogOpen(false);
     resetForm();
+    
+    // Success toast for creation
+    toast({
+      title: "✅ Carga creada correctamente",
+      description: `Se ha creado la carga de ${formData.origen} a ${formData.destino}`,
+      className: "bg-green-50 border-green-200 text-green-800",
+    });
   };
 
   const handleEdit = (order: Order) => {
@@ -148,6 +157,13 @@ const CargoManagement: React.FC = () => {
     setIsEditDialogOpen(false);
     setSelectedOrder(null);
     resetForm();
+    
+    // Info toast for update
+    toast({
+      title: "📝 Carga actualizada correctamente",
+      description: `Se han actualizado los datos de la carga #${selectedOrder.id}`,
+      className: "bg-blue-50 border-blue-200 text-blue-800",
+    });
   };
 
   const handleDeleteClick = (order: Order) => {
@@ -159,6 +175,14 @@ const CargoManagement: React.FC = () => {
     if (orderToDelete) {
       setOrders(orders.filter(order => order.id !== orderToDelete.id));
       setIsDeleteDialogOpen(false);
+      
+      // Destructive toast for deletion
+      toast({
+        title: "🗑️ Carga eliminada",
+        description: `Se ha eliminado la carga #${orderToDelete.id} (${orderToDelete.origen} → ${orderToDelete.destino})`,
+        className: "bg-red-50 border-red-200 text-red-800",
+      });
+      
       setOrderToDelete(null);
     }
   };
