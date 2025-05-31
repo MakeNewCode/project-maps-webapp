@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
+import AppNavbar from '@/components/AppNavbar';
 import MapComponent from '@/components/MapComponent';
 import MapboxTokenInput from '@/components/MapboxTokenInput';
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
@@ -96,143 +97,150 @@ const RouteDetails: React.FC = () => {
 
   if (!order) {
     return (
-      <div className="flex items-center justify-center h-screen">
-        <div className="text-center">
-          <h2 className="text-2xl font-bold mb-2">Orden no encontrada</h2>
-          <Button onClick={() => navigate('/')}>Volver al inicio</Button>
+      <div className="min-h-screen bg-gray-100">
+        <AppNavbar />
+        <div className="flex items-center justify-center h-screen">
+          <div className="text-center">
+            <h2 className="text-2xl font-bold mb-2">Orden no encontrada</h2>
+            <Button onClick={() => navigate('/')}>Volver al inicio</Button>
+          </div>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="container mx-auto p-4">
-      <Button 
-        variant="ghost" 
-        className="mb-4 flex items-center gap-2"
-        onClick={() => navigate('/')}
-      >
-        <ArrowLeft size={18} />
-        <span>Volver al listado</span>
-      </Button>
+    <div className="min-h-screen bg-gray-100">
+      <AppNavbar />
       
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Map column */}
-        <div className="lg:col-span-2">
-          <Card className="h-[500px] mb-6">
-            <CardContent className="p-0 h-full">
-              {!mapboxToken && (
-                <div className="p-6">
-                  <MapboxTokenInput onSubmit={handleMapboxTokenSubmit} />
-                </div>
-              )}
-              {mapboxToken && (
-                <MapComponent
-                  orders={[order]}
-                  selectedOrder={order}
-                  mapboxToken={mapboxToken}
-                  showRoute={true}
-                />
-              )}
-            </CardContent>
-          </Card>
-        </div>
+      <div className="container mx-auto p-4">
+        <Button 
+          variant="ghost" 
+          className="mb-4 flex items-center gap-2"
+          onClick={() => navigate('/')}
+        >
+          <ArrowLeft size={18} />
+          <span>Volver al listado</span>
+        </Button>
         
-        {/* Details column - Updated with new style */}
-        <div className="lg:col-span-1">
-          <Card className="shadow-md border-0">
-            <CardHeader className="pb-0">
-              <CardTitle className="text-xl font-bold">
-                Detalles de la Carga
-                <Badge className="ml-2 bg-blue-100 text-blue-800 hover:bg-blue-200">
-                  Activa
-                </Badge>
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-4 mt-6">
-                <div className="bg-blue-50 rounded-xl p-4 flex items-center gap-3">
-                  <div className="bg-blue-100 p-2 rounded-full">
-                    <MapPin className="text-blue-600" size={20} />
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          {/* Map column */}
+          <div className="lg:col-span-2">
+            <Card className="h-[500px] mb-6">
+              <CardContent className="p-0 h-full">
+                {!mapboxToken && (
+                  <div className="p-6">
+                    <MapboxTokenInput onSubmit={handleMapboxTokenSubmit} />
                   </div>
-                  <div>
-                    <h3 className="text-xs text-gray-500">UBICACIÓN</h3>
-                    <p className="font-medium">
-                      {order.origen} → {order.destino}
-                    </p>
+                )}
+                {mapboxToken && (
+                  <MapComponent
+                    orders={[order]}
+                    selectedOrder={order}
+                    mapboxToken={mapboxToken}
+                    showRoute={true}
+                  />
+                )}
+              </CardContent>
+            </Card>
+          </div>
+          
+          {/* Details column - Updated with new style */}
+          <div className="lg:col-span-1">
+            <Card className="shadow-md border-0">
+              <CardHeader className="pb-0">
+                <CardTitle className="text-xl font-bold">
+                  Detalles de la Carga
+                  <Badge className="ml-2 bg-blue-100 text-blue-800 hover:bg-blue-200">
+                    Activa
+                  </Badge>
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4 mt-6">
+                  <div className="bg-blue-50 rounded-xl p-4 flex items-center gap-3">
+                    <div className="bg-blue-100 p-2 rounded-full">
+                      <MapPin className="text-blue-600" size={20} />
+                    </div>
+                    <div>
+                      <h3 className="text-xs text-gray-500">UBICACIÓN</h3>
+                      <p className="font-medium">
+                        {order.origen} → {order.destino}
+                      </p>
+                    </div>
+                  </div>
+                  
+                  <div className="bg-yellow-50 rounded-xl p-4 flex items-center gap-3">
+                    <div className="bg-yellow-100 p-2 rounded-full">
+                      <Truck className="text-yellow-600" size={20} />
+                    </div>
+                    <div>
+                      <h3 className="text-xs text-gray-500">DESCRIPCIÓN</h3>
+                      <p className="font-medium">
+                        {order.descripcion_carga}
+                      </p>
+                    </div>
+                  </div>
+                  
+                  <div className="bg-green-50 rounded-xl p-4 flex items-center gap-3">
+                    <div className="bg-green-100 p-2 rounded-full">
+                      <DollarSign className="text-green-600" size={20} />
+                    </div>
+                    <div>
+                      <h3 className="text-xs text-gray-500">PRECIO</h3>
+                      <p className="font-medium">${order.precio}</p>
+                    </div>
+                  </div>
+                  
+                  <div className="bg-purple-50 rounded-xl p-4 flex items-center gap-3">
+                    <div className="bg-purple-100 p-2 rounded-full">
+                      <DollarSign className="text-purple-600" size={20} />
+                    </div>
+                    <div>
+                      <h3 className="text-xs text-gray-500">COMISIÓN</h3>
+                      <p className="font-medium">${order.comision}</p>
+                    </div>
+                  </div>
+                  
+                  <div className="bg-red-50 rounded-xl p-4 flex items-center gap-3">
+                    <div className="bg-red-100 p-2 rounded-full">
+                      <CreditCard className="text-red-600" size={20} />
+                    </div>
+                    <div>
+                      <h3 className="text-xs text-gray-500">FORMA DE PAGO</h3>
+                      <p className="font-medium">{order.forma_pago}</p>
+                    </div>
+                  </div>
+                  
+                  <div className="bg-orange-50 rounded-xl p-4 flex items-center gap-3">
+                    <div className="bg-orange-100 p-2 rounded-full">
+                      <Calendar className="text-orange-600" size={20} />
+                    </div>
+                    <div>
+                      <h3 className="text-xs text-gray-500">FECHA DE CREACIÓN</h3>
+                      <p className="font-medium">{formattedDate}</p>
+                    </div>
+                  </div>
+                  
+                  <div className="bg-slate-50 rounded-xl p-4 flex items-center gap-3">
+                    <div className="bg-slate-100 p-2 rounded-full">
+                      <MapPin className="text-slate-600" size={20} />
+                    </div>
+                    <div>
+                      <h3 className="text-xs text-gray-500">DISTANCIA</h3>
+                      <p className="font-medium">{order.km} km</p>
+                    </div>
                   </div>
                 </div>
                 
-                <div className="bg-yellow-50 rounded-xl p-4 flex items-center gap-3">
-                  <div className="bg-yellow-100 p-2 rounded-full">
-                    <Truck className="text-yellow-600" size={20} />
-                  </div>
-                  <div>
-                    <h3 className="text-xs text-gray-500">DESCRIPCIÓN</h3>
-                    <p className="font-medium">
-                      {order.descripcion_carga}
-                    </p>
-                  </div>
+                <div className="mt-8 flex justify-center">
+                  <Button variant="outline" className="w-full">
+                    Ver más detalles
+                  </Button>
                 </div>
-                
-                <div className="bg-green-50 rounded-xl p-4 flex items-center gap-3">
-                  <div className="bg-green-100 p-2 rounded-full">
-                    <DollarSign className="text-green-600" size={20} />
-                  </div>
-                  <div>
-                    <h3 className="text-xs text-gray-500">PRECIO</h3>
-                    <p className="font-medium">${order.precio}</p>
-                  </div>
-                </div>
-                
-                <div className="bg-purple-50 rounded-xl p-4 flex items-center gap-3">
-                  <div className="bg-purple-100 p-2 rounded-full">
-                    <DollarSign className="text-purple-600" size={20} />
-                  </div>
-                  <div>
-                    <h3 className="text-xs text-gray-500">COMISIÓN</h3>
-                    <p className="font-medium">${order.comision}</p>
-                  </div>
-                </div>
-                
-                <div className="bg-red-50 rounded-xl p-4 flex items-center gap-3">
-                  <div className="bg-red-100 p-2 rounded-full">
-                    <CreditCard className="text-red-600" size={20} />
-                  </div>
-                  <div>
-                    <h3 className="text-xs text-gray-500">FORMA DE PAGO</h3>
-                    <p className="font-medium">{order.forma_pago}</p>
-                  </div>
-                </div>
-                
-                <div className="bg-orange-50 rounded-xl p-4 flex items-center gap-3">
-                  <div className="bg-orange-100 p-2 rounded-full">
-                    <Calendar className="text-orange-600" size={20} />
-                  </div>
-                  <div>
-                    <h3 className="text-xs text-gray-500">FECHA DE CREACIÓN</h3>
-                    <p className="font-medium">{formattedDate}</p>
-                  </div>
-                </div>
-                
-                <div className="bg-slate-50 rounded-xl p-4 flex items-center gap-3">
-                  <div className="bg-slate-100 p-2 rounded-full">
-                    <MapPin className="text-slate-600" size={20} />
-                  </div>
-                  <div>
-                    <h3 className="text-xs text-gray-500">DISTANCIA</h3>
-                    <p className="font-medium">{order.km} km</p>
-                  </div>
-                </div>
-              </div>
-              
-              <div className="mt-8 flex justify-center">
-                <Button variant="outline" className="w-full">
-                  Ver más detalles
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
+              </CardContent>
+            </Card>
+          </div>
         </div>
       </div>
     </div>

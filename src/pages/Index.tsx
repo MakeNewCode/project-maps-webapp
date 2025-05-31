@@ -1,5 +1,6 @@
+
 import React, { useState, useEffect } from 'react';
-import AppSidebar from '@/components/AppSidebar';
+import AppNavbar from '@/components/AppNavbar';
 import OrderCard, { Order } from '@/components/OrderCard';
 import OrderFilters, { FilterType } from '@/components/OrderFilters';
 import MapComponent from '@/components/MapComponent';
@@ -62,7 +63,6 @@ const MOCK_ORDERS: Order[] = [
 ];
 
 const Index: React.FC = () => {
-  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
   const [filteredOrders, setFilteredOrders] = useState<Order[]>(MOCK_ORDERS);
   const [filters, setFilters] = useState<FilterType>({
@@ -76,7 +76,7 @@ const Index: React.FC = () => {
   
   // Pagination state
   const [currentPage, setCurrentPage] = useState(1);
-  const ordersPerPage = 3; // Número de órdenes por página
+  const ordersPerPage = 3;
   
   // Calculate paginated orders
   const indexOfLastOrder = currentPage * ordersPerPage;
@@ -110,7 +110,7 @@ const Index: React.FC = () => {
     }));
     
     setFilteredOrders(result);
-    setCurrentPage(1); // Reset to first page when filters change
+    setCurrentPage(1);
   }, [filters, searchQuery, selectedOrder]);
 
   const handleOrderClick = (orderId: number) => {
@@ -134,19 +134,15 @@ const Index: React.FC = () => {
     setSearchQuery(query);
   };
 
-  const toggleSidebar = () => {
-    setSidebarCollapsed(!sidebarCollapsed);
-  };
-
   const handlePageChange = (page: number) => {
     setCurrentPage(page);
   };
 
   return (
-    <div className="flex min-h-screen bg-gray-100">
-      <AppSidebar collapsed={sidebarCollapsed || isMobile} onToggle={toggleSidebar} />
+    <div className="min-h-screen bg-gray-100">
+      <AppNavbar />
       
-      <div className="flex-1 flex flex-col md:flex-row overflow-hidden">
+      <div className="flex flex-col md:flex-row">
         {/* Orders List - Left column */}
         {(!isMobile || !showDetails) && (
           <div className="w-full md:w-[400px] p-4 overflow-y-auto">
@@ -189,19 +185,14 @@ const Index: React.FC = () => {
                     )}
                     
                     {Array.from({ length: Math.min(totalPages, 5) }).map((_, index) => {
-                      // Logic to show around current page
                       let pageNumber;
                       if (totalPages <= 5) {
-                        // Show all page numbers if total pages is 5 or less
                         pageNumber = index + 1;
                       } else if (currentPage <= 3) {
-                        // For pages 1-3, show pages 1-5
                         pageNumber = index + 1;
                       } else if (currentPage >= totalPages - 2) {
-                        // For the last 3 pages, show the last 5 pages
                         pageNumber = totalPages - 4 + index;
                       } else {
-                        // Otherwise show 2 pages before and after current page
                         pageNumber = currentPage - 2 + index;
                       }
                       
