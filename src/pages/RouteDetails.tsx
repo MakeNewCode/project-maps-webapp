@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import AppNavbar from '@/components/AppNavbar';
@@ -114,14 +115,45 @@ const RouteDetails: React.FC = () => {
       <AppNavbar />
       
       <div className="container mx-auto p-4">
-        <Button 
-          variant="ghost" 
-          className="mb-4 flex items-center gap-2"
-          onClick={() => navigate('/')}
-        >
-          <ArrowLeft size={18} />
-          <span>Volver al listado</span>
-        </Button>
+        {/* Redesigned header section */}
+        <div className="bg-white rounded-xl shadow-sm border p-6 mb-6">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+            <div className="flex items-center gap-4">
+              <Button 
+                variant="outline" 
+                size="sm"
+                className="flex items-center gap-2 hover:bg-gray-50 transition-colors"
+                onClick={() => navigate('/')}
+              >
+                <ArrowLeft size={16} />
+                <span className="hidden sm:inline">Volver al listado</span>
+                <span className="sm:hidden">Volver</span>
+              </Button>
+              
+              <div className="h-6 w-px bg-gray-200"></div>
+              
+              <div>
+                <h1 className="text-2xl font-bold text-gray-900">
+                  Ruta #{order.id}
+                </h1>
+                <p className="text-sm text-gray-500 mt-1">
+                  {order.origen} → {order.destino}
+                </p>
+              </div>
+            </div>
+            
+            <div className="flex items-center gap-3">
+              <Badge className="bg-green-100 text-green-800 hover:bg-green-200">
+                <div className="w-2 h-2 bg-green-500 rounded-full mr-2"></div>
+                En Progreso
+              </Badge>
+              <div className="text-right">
+                <p className="text-sm text-gray-500">Distancia</p>
+                <p className="font-semibold">{order.km} km</p>
+              </div>
+            </div>
+          </div>
+        </div>
         
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* Map column */}
