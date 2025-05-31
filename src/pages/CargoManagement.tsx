@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
@@ -32,6 +31,7 @@ import {
 } from "@/components/ui/select";
 import { Plus, Eye, Trash2, Edit } from 'lucide-react';
 import { Order } from '@/components/OrderCard';
+import ConfirmDeleteDialog from '@/components/ConfirmDeleteDialog';
 
 // Mock data - same as other pages
 const INITIAL_ORDERS: Order[] = [
@@ -86,7 +86,9 @@ const CargoManagement: React.FC = () => {
   const [orders, setOrders] = useState<Order[]>(INITIAL_ORDERS);
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
+  const [orderToDelete, setOrderToDelete] = useState<Order | null>(null);
   const [formData, setFormData] = useState({
     origen: '',
     destino: '',
@@ -148,9 +150,16 @@ const CargoManagement: React.FC = () => {
     resetForm();
   };
 
-  const handleDelete = (id: number) => {
-    if (window.confirm('¿Estás seguro de que quieres eliminar esta carga?')) {
-      setOrders(orders.filter(order => order.id !== id));
+  const handleDeleteClick = (order: Order) => {
+    setOrderToDelete(order);
+    setIsDeleteDialogOpen(true);
+  };
+
+  const handleConfirmDelete = () => {
+    if (orderToDelete) {
+      setOrders(orders.filter(order => order.id !== orderToDelete.id));
+      setIsDeleteDialogOpen(false);
+      setOrderToDelete(null);
     }
   };
 
@@ -335,7 +344,7 @@ const CargoManagement: React.FC = () => {
                       <Button
                         variant="ghost"
                         size="sm"
-                        onClick={() => handleDelete(order.id)}
+                        onClick={() => handleDeleteClick(order)}
                         title="Eliminar"
                         className="text-red-600 hover:text-red-700"
                       >
@@ -438,6 +447,15 @@ const CargoManagement: React.FC = () => {
           </div>
         </DialogContent>
       </Dialog>
+
+      {/* Custom Delete Confirmation Dialog */}
+      <ConfirmDeleteDialog
+        open={isDeleteDialogOpen}
+        onOpenChange={setIsDeleteDialogOpen}
+        onConfirm={handleConfirmDelete}
+        title="¿Eliminar carga?"
+        itemName={orderToDelete ? `Carga #${orderToDelete.id} (${orderToDelete.origen} → ${orderToDelete.destino})` : undefined}
+      />
     </div>
   );
 };
